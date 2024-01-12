@@ -1,6 +1,7 @@
 from flask import Flask
 from extensions import db, jwt
 from auth import auth_bp
+from users import user_bp
 
 app = Flask(__name__)
 
@@ -13,6 +14,7 @@ db.init_app(app)
 jwt.init_app(app)
 
 app.register_blueprint(auth_bp, url_prefix='/auth')
+app.register_blueprint(user_bp, url_prefix='/users')
 
 
 if __name__ == '__main__':
