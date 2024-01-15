@@ -43,5 +43,11 @@ def missing_token_callback(error):
     }), 401
 
 
+@jwt.additional_claims_loader
+def make_additional_claims(identity):
+    if identity == "user56":
+        return {'is_admin': True}
+    return {'is_admin': False}
+
 if __name__ == '__main__':
     app.run(debug=True)

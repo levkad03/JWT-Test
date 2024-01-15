@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt, jwt_required
 from models import User
 
 
@@ -43,3 +43,10 @@ def login_user():
         }), 200
         
     return jsonify({'error': 'Invalid credentials'}), 400
+
+
+@auth_bp.get('/whoami')
+@jwt_required()
+def whoami():
+    claims = get_jwt()
+    return jsonify({'message': " message", "claims":claims}), 200
