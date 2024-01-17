@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from extensions import db, jwt
 from auth import auth_bp
 from users import user_bp
-from models import User
+from models import User, TokenBlockList
 
 app = Flask(__name__)
 
@@ -55,6 +55,15 @@ def make_additional_claims(identity):
     if identity == "user56":
         return {'is_admin': True}
     return {'is_admin': False}
+
+
+@jwt.token_in_blocklist_loader
+def token_in_blocklist_callback(jwt_header, jwt_data):
+    jti = jwt_data['jti']
+    token = db.session.query(TokenBlockList).filter(TokenBlockList.jti == jti).scalar()
+    
+    return token is not None
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
