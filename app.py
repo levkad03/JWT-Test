@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from extensions import db, jwt
 from auth import auth_bp
 from users import user_bp
+from models import User
 
 app = Flask(__name__)
 
@@ -41,6 +42,12 @@ def missing_token_callback(error):
         'message': 'Request does not contain an access token.',
         'error': 'authorization_header'
     }), 401
+
+
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    return User.query.filter_by(username=identity).one_or_none()
 
 
 @jwt.additional_claims_loader
