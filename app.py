@@ -3,13 +3,16 @@ from extensions import db, jwt
 from auth import auth_bp
 from users import user_bp
 from models import User, TokenBlockList
+from dotenv import load_dotenv
+import os
+
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
-app.config['SQLALCHEMY_ECHO'] = True
-app.config['FLASK_JWT_SECRET_KEY'] = 'f8e8888797be153d6dff2abf'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
+app.config['SQLALCHEMY_ECHO'] = os.getenv('SQLALCHEMY_ECHO')
+app.config['FLASK_JWT_SECRET_KEY'] = os.getenv('FLASK_JWT_SECRET_KEY')
 
 # initialize extensions
 db.init_app(app)
@@ -20,6 +23,8 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(user_bp, url_prefix='/users')
 
 # jwt error handlers
+
+
 @jwt.expired_token_loader
 def expired_token_callback(jwt_header, jwt_data):
     return jsonify({
@@ -27,14 +32,14 @@ def expired_token_callback(jwt_header, jwt_data):
         'error': 'token_expired'
     }), 401
 
-    
+
 @jwt.invalid_token_loader
 def invalid_token_callback(error):
     return jsonify({
         'message': 'Signature verification failed.',
         'error': 'invalid_token'
     }), 401
-    
+
 
 @jwt.unauthorized_loader
 def missing_token_callback(error):
@@ -60,10 +65,11 @@ def make_additional_claims(identity):
 @jwt.token_in_blocklist_loader
 def token_in_blocklist_callback(jwt_header, jwt_data):
     jti = jwt_data['jti']
-    token = db.session.query(TokenBlockList).filter(TokenBlockList.jti == jti).scalar()
-    
+    token = db.session.query(TokenBlockList).filter(
+        TokenBlockList.jti == jti).scalar()
+
     return token is not None
-    
+
 
 if __name__ == '__main__':
     app.run(debug=True)
