@@ -19,18 +19,19 @@ Install the libraries
 ```
 pip install -r requirements.txt
 ```
-Create the database by running
+
+App uses **Docker**
+
+to run the db type 
 ```
-flask shell
+docker compose -f docker-compose.yaml up -d
 ```
 
-In the interactive shell run the following
+Create the database by running
 ```
-Python 3.11.3 (tags/v3.11.3:f3909b8, Apr  4 2023, 23:49:59) [MSC v.1934 64 bit (AMD64)] on win32
-App: app
-Instance: D:\Python labs\JWT-Test\instance
->>> from models import User
->>> db.create_all()
+flask db init
+flask db migrate
+flask db upgrade
 ```
 
 Run the application with ``flask run``
