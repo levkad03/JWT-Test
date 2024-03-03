@@ -1,21 +1,24 @@
 from flask import Flask, jsonify
-from extensions import db, jwt
+from extensions import db, jwt, migrate
 from auth import auth_bp
 from users import user_bp
 from models import User, TokenBlockList
 from dotenv import load_dotenv
 import os
 
+load_dotenv()
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
-app.config['SQLALCHEMY_ECHO'] = os.getenv('SQLALCHEMY_ECHO')
-app.config['FLASK_JWT_SECRET_KEY'] = os.getenv('FLASK_JWT_SECRET_KEY')
+app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
+# 'sqlite:///db.sqlite3'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost:5433/postgres'
+app.config['SQLALCHEMY_ECHO'] = True
+app.config['FLASK_JWT_SECRET_KEY'] = 'f8e8888797be153d6dff2abf'
 
 # initialize extensions
 db.init_app(app)
+migrate.init_app(app, db)
 jwt.init_app(app)
 
 # register blueprints
