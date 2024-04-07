@@ -1,14 +1,21 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt, jwt_required, current_user, get_jwt_identity
 from models import User, TokenBlockList
+from schemas import UserSchema
 
 
 auth_bp = Blueprint('auth', __name__)
+
+schema = UserSchema()
 
 @auth_bp.post('/register')
 def register_user():
     
     data = request.get_json()
+    
+    errors = schema.validate(data)
+    if errors:
+        return jsonify({'error': errors}), 400
     
     user = User.get_user_by_username(username=data.get('username'))
     
@@ -18,9 +25,8 @@ def register_user():
     new_user = User(username=data.get('username'), email=data.get('email'))
     new_user.set_password(password=data.get('password'))
     new_user.save()
-    
     return jsonify({'message': 'User created'}), 201
-
+    
 
 @auth_bp.post('/login')
 def login_user():
